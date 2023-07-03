@@ -8,7 +8,7 @@ const {
 	EmbedBuilder,
 } = require('discord.js'); // import discord.js library
 const axios = require('axios'); // require axios for http requests for weather API
-const GphApiClient = require('giphy-api')(process.env.gihpyAPIKey);
+// const GphApiClient = require('giphy-api')(process.env.gihpyAPIKey);
 
 // Create new client instance
 const client = new Client({
@@ -29,27 +29,30 @@ client.once('ready', (c) => {
 // Log the bot in to Discord using client's TOKEN
 client.login(process.env.TOKEN);
 
-// create annonmous function for the WeatheAPI using Axios to make the get request
+// create anonymous function for the WeatherAPI using Axios to make the get request
 async function getWeatherData(zipCode) {
 	const response = await axios.get(
 		`http://api.weatherapi.com/v1/forecast.json?key=${process.env.weatherAPIKey}&q=${zipCode}&days=3&aqi=no&alerts=no`
 	);
 	return response.data;
 }
-
+// create anonymous function for the GiphyAPI using Axios to make the get request
 async function giphyApiCall(query) {
 	const response =
 		await axios.get(`http://api.giphy.com/v1/gifs/search?q=${query}
-    &api_key=${process.env.giphyAPIKey}&limit=10`);
+    &api_key=${process.env.giphyAPIKey}&limit=20`);
 	return response.data;
 }
 
-// Create interaction for slash commands.
+// Create interaction for slash commands
 client.on('interactionCreate', async (interaction) => {
 	if (!interaction.isChatInputCommand()) return;
 
+	// Get channel name for posting the GIF message
 	client.channels.fetch(interaction.channelId).then((interactionChannel) => {
 		const { commandName, options } = interaction;
+
+		// Conditional statement to check for weather slash command
 		if (interaction.commandName === 'weather') {
 			const zipCodeOption = options.get('zipcode');
 			const degreeOption = options.get('degree_type');
@@ -58,6 +61,7 @@ client.on('interactionCreate', async (interaction) => {
 			const degreeType = degreeOption.value;
 			const tempScale = degreeType === 'Fahrenheit' ? 'F' : 'C';
 
+			// Error handling for invalid zip
 			if (!(zipCode.toString().length === 5)) {
 				interaction.reply({
 					content:
@@ -65,6 +69,7 @@ client.on('interactionCreate', async (interaction) => {
 					ephemeral: true,
 				});
 			} else {
+				// Build the embed containing weather data
 				getWeatherData(zipCode).then((weatherData) => {
 					const weather = new EmbedBuilder()
 						.setTitle(
@@ -105,6 +110,7 @@ client.on('interactionCreate', async (interaction) => {
 							name: `3 Day Forecast for ${weatherData.location.name}, ${weatherData.location.region}`,
 							value: ' ',
 						});
+					// Gather and send data for 3 day forecast
 					weatherData.forecast.forecastday.forEach((threeDay) => {
 						weather
 							.addFields({
@@ -137,17 +143,18 @@ client.on('interactionCreate', async (interaction) => {
 					});
 					interaction.reply({ embeds: [weather] });
 
-					giphyApiCall(weatherData.current.condition.text).then(
-						(giphyData) => {
-							interactionChannel.send(
-								giphyData.data[
-									Math.floor(
-										Math.random() * giphyData.data.length
-									)
-								].url
-							);
-						}
-					);
+					// Send a random GIF pertaining to the weather condition from the 20 results from the GIPHY API
+					giphyApiCall(
+						weatherData.current.condition.text + 'weather'
+					).then((giphyData) => {
+						interactionChannel.send(
+							giphyData.data[
+								Math.floor(
+									Math.random() * giphyData.data.length
+								)
+							].url
+						);
+					});
 				});
 			}
 		}

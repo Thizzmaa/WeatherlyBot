@@ -1,14 +1,12 @@
-// import .env for environment variables containing token and API keys
-require('dotenv').config();
-// import discord.js library
-const { REST, Routes, ApplicationCommandOptionType } = require('discord.js');
+require('dotenv').config(); // import .env for environment variables containing token and API keys
+const { REST, Routes, ApplicationCommandOptionType } = require('discord.js');// import discord.js library
 
-// define commands variable
+// Define commands variable
 const commands = [
 	{
 		name: 'weather',
 		description: 'Send weather embed!',
-		// set options
+		// Set options for weather embed
 		options: [
 			{
 				name: 'zipcode',
@@ -21,7 +19,7 @@ const commands = [
 				description: 'select degree type - F° or C°',
 				type: ApplicationCommandOptionType.String,
 				required: true,
-				// set choices for degree type
+				// Set choices for degree type
 				choices: [
 					{
 						name: 'fahrenheit',
@@ -37,8 +35,10 @@ const commands = [
 	},
 ];
 
+// Create new REST to make REST requests to Discord API
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
+// Register slash commands
 (async () => {
 	try {
 		console.log('Registering slash commands...');
