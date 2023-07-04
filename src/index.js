@@ -1,9 +1,6 @@
 require('dotenv').config(); // require .env for environment variables containing token and API keys
 const {
-	Attachment,
 	Client,
-	Collection,
-	Events,
 	IntentsBitField,
 	EmbedBuilder,
 } = require('discord.js'); // import discord.js library
@@ -144,17 +141,17 @@ client.on('interactionCreate', async (interaction) => {
 					interaction.reply({ embeds: [weather] });
 
 					// Send a random GIF pertaining to the weather condition from the 20 results from the GIPHY API
-					giphyApiCall(
-						weatherData.current.condition.text + 'weather'
-					).then((giphyData) => {
-						interactionChannel.send(
-							giphyData.data[
-								Math.floor(
-									Math.random() * giphyData.data.length
-								)
-							].url
-						);
-					});
+					giphyApiCall(weatherData.current.condition.text).then(
+						(giphyData) => {
+							interactionChannel.send(
+								giphyData.data[
+									Math.floor(
+										Math.random() * giphyData.data.length
+									)
+								].url
+							);
+						}
+					);
 				});
 			}
 		}

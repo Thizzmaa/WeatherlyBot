@@ -5,7 +5,7 @@ const { REST, Routes, ApplicationCommandOptionType } = require('discord.js');// 
 const commands = [
 	{
 		name: 'weather',
-		description: 'Send weather embed!',
+		description: 'Get current weather and 3 day forecast!',
 		// Set options for weather embed
 		options: [
 			{
